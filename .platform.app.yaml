@@ -7,12 +7,17 @@ name: admin
 # The toolstack used to build the application.
 type: nodejs:16
 build:
-    flavor: none
+  flavor: none
 
 variables:
   env:
     NODE_OPTIONS: '--max-old-space-size=1536'
 
+source:
+  root: admin
+
+# The size of the persistent disk of the application (in MB).
+disk: 1024
 size: L
 resources:
   base_memory: 1024
@@ -20,36 +25,31 @@ resources:
 
 # The configuration of app when it is exposed to the web.
 web:
-    locations:
-        "/":
-            root: "build"
-            index:
-                - "index.html"
-            expires: 300s
-            scripts: true
-            allow: false
-            rules:
-                \.(css|js|gif|jpe?g|png|ttf|eot|woff2?|otf|html|ico|svg?)$:
-                    allow: true
-                ^/robots\.txt$:
-                  allow: true
-                ^/manifest\.json$:
-                  allow: true
-                ^/_next:
-                  allow: true
-                ^/sitemap:
-                  allow: true
-            headers:
-                Access-Control-Allow-Origin: "*"
-
-# The size of the persistent disk of the application (in MB).
-disk: 1024
+  locations:
+    "/admin":
+      passthru: "/admin/index.html"
+      root: "build"
+      index:
+        - "index.html"
+      expires: 300s
+      scripts: true
+      allow: false
+      rules:
+        \.(css|js|gif|jpe?g|png|ttf|eot|woff2?|otf|html|ico|svg?)$:
+          allow: true
+        ^/admin/robots\.txt$:
+          allow: true
+        ^/admin/manifest\.json$:
+          allow: true
+        ^/admin/_next:
+          allow: true
+        ^/admin/sitemap:
+          allow: true
+      headers:
+        Access-Control-Allow-Origin: "*"
 
 # The mounts that will be performed when the package is deployed.
 mounts:
-#  '/build_platform':
-#      source: local
-#      source_path: build_platform
   '/.tmp_platformsh': 'shared:files/tmp_platformsh'
   '/build': 'shared:files/build'
   '/.cache': 'shared:files/.cache'
@@ -57,8 +57,8 @@ mounts:
 
 # The hooks that will be performed when the package is deployed.
 hooks:
-    build: |
-      set -eu
-      corepack yarn install --immutable --force
-    post_deploy: |
-      corepack yarn run build
+  build: |
+    set -eu
+    corepack yarn install --immutable --force
+  post_deploy: |
+    corepack yarn run build
